@@ -40,6 +40,15 @@ body.orgadmin-page .admin-page .tab.active {
   box-shadow: 0 6px 18px rgba(47, 95, 167, 0.18);
 }
 
+/* Header + section title color overrides (avoid maroon from admin.css) */
+body.orgadmin-page .admin-left h2 {
+  color: #122038;
+}
+
+body.orgadmin-page .admin-page .section-title {
+  background: #3f6fb6;
+}
+
 /* View Attendance: sub-tabs (Individual / Course-wise) */
 body.orgadmin-page .admin-page .sub-tabs button {
   background: #3f6fb6;
