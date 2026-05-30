@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import "./login1.css";
 import "./SignUp";
 import loginImage from "../../assets/login_image1 .png";
@@ -42,7 +42,7 @@ const Login = () => {
     if (!pendingToken) return;
 
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `/api/events/register-by-link/${encodeURIComponent(pendingToken)}/`,
         {},
         { headers: { Authorization: `Bearer ${accessToken}` } }
@@ -84,7 +84,7 @@ const Login = () => {
     if (data.role === "student") {
       try {
         setLoading(true);
-        const { data: result } = await axios.post("/api/auth/login/student/", {
+        const { data: result } = await axiosInstance.post("/api/auth/login/student/", {
           email: data.email,
           password: data.password,
         });
@@ -125,7 +125,7 @@ const Login = () => {
     if (data.role === "teacher") {
       try {
         setLoading(true);
-        const { data: result } = await axios.post("/api/auth/login/teacher/", {
+        const { data: result } = await axiosInstance.post("/api/auth/login/teacher/", {
           email: data.email,
           password: data.password,
         });
@@ -167,13 +167,13 @@ const Login = () => {
     if (data.role === "orgadmin") {
       try {
         setLoading(true);
-        const { data: result } = await axios.post("/api/auth/login/management/", {
+        const { data: result } = await axiosInstance.post("/api/auth/login/management/", {
           email: data.email,
           password: data.password,
         });
 
         // Fetch full management profile using the returned id and token
-        const { data: profile } = await axios.get(
+        const { data: profile } = await axiosInstance.get(
           `/api/management/${result.management_id}/`,
           { headers: { Authorization: `Bearer ${result.access}` } }
         );
@@ -212,7 +212,7 @@ const Login = () => {
     if (data.role === "advisor") {
       try {
         setLoading(true);
-        const { data: result } = await axios.post("/api/login", {
+        const { data: result } = await axiosInstance.post("/api/login", {
           email: data.email,
           password: data.password,
           role: "advisor",
@@ -252,7 +252,7 @@ const Login = () => {
     if (data.role === "participant") {
       try {
         setLoading(true);
-        const { data: result } = await axios.post("/api/login", {
+        const { data: result } = await axiosInstance.post("/api/login", {
           email: data.email,
           password: data.password,
           role: "participant",

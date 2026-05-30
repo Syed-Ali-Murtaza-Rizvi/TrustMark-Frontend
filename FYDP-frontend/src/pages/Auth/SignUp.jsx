@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { Building2, CalendarDays, User } from "lucide-react";
 import "./Signup.css";
 import signupImage from "../../assets/signup.png"; // your PNG image
@@ -72,7 +72,7 @@ const Signup = () => {
 
     try {
       setLoading(true);
-      await axios.post("/api/signup", payload);
+      await axiosInstance.post("/api/signup", payload);
       alert("Signup successful!");
       window.location.assign("/login");
     } catch (err) {
