@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const axiosInstance = axios.create();
+const API_URL = import.meta.env.VITE_API_URL;
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+});
 
 // Attach access token to every request automatically
 axiosInstance.interceptors.request.use((config) => {
@@ -29,7 +32,7 @@ axiosInstance.interceptors.response.use(
 
     try {
       const currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
-      const { data } = await axios.post("/api/token/refresh/", {
+      const { data } = await axiosInstance.post("/api/token/refresh/", {
         refresh: currentUser.refresh,
       });
 

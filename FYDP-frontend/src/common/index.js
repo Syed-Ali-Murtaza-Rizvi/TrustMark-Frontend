@@ -1,4 +1,4 @@
-const backendDomain='http://localhost:8080'
+const backendDomain = import.meta.env.VITE_API_URL;
 
 const summaryApi={
     signUp:{
