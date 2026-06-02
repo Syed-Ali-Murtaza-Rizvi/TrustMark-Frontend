@@ -185,7 +185,8 @@
   }
 
   .login-card-right {
-    padding: 30px;
+    display: none;
+    padding: 0;
   }
 
   .login-image {

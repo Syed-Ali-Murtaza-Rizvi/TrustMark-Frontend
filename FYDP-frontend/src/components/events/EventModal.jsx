@@ -1,10 +1,33 @@
 // src/components/events/EventModal.jsx
 import React, { useState } from "react";
 import { User } from "lucide-react";
+import { getEventRegistrationLink } from "../../utils/eventLinks";
 
 export default function EventModal({ event, onClose }) {
   const [tab, setTab] = useState("details"); // details | participants | attendance
   const isUpcoming = Boolean(event.isUpcoming);
+  const registrationLink = getEventRegistrationLink(event);
+
+  const copyRegistrationLink = () => {
+    if (!registrationLink) return;
+    if (navigator.clipboard && window.location.protocol === "https:") {
+      navigator.clipboard.writeText(registrationLink);
+      return;
+    }
+
+    const textArea = document.createElement("textarea");
+    textArea.value = registrationLink;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand("copy");
+    } catch {
+      prompt("Copy this registration link:", registrationLink);
+    }
+    document.body.removeChild(textArea);
+  };
 
   return (
     <div className="modal-overlay">
@@ -52,8 +75,13 @@ export default function EventModal({ event, onClose }) {
                   <label>Registration Link</label>
                   {isUpcoming ? (
                     <p style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                      <input readOnly value={event.registrationLink} style={{ flex: 1, padding: 8, borderRadius: 6, border: "1px solid #eee", background: "#fafafa" }} />
-                      <button className="small-btn" onClick={() => navigator.clipboard?.writeText(event.registrationLink)}>Copy</button>
+                      <input
+                        readOnly
+                        value={registrationLink}
+                        placeholder="Registration link unavailable"
+                        style={{ flex: 1, padding: 8, borderRadius: 6, border: "1px solid #eee", background: "#fafafa" }}
+                      />
+                      <button className="small-btn" onClick={copyRegistrationLink} disabled={!registrationLink}>Copy</button>
                     </p>
                   ) : (
                     <p style={{ color: "#777" }}>Registration closed for this event.</p>
