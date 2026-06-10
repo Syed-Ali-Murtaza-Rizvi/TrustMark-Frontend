@@ -47,7 +47,6 @@ const Hero = () => {
          <Link to="/login" className="btn-primary">
   Start Free Trial
 </Link>
-          <button className="btn-secondary">Watch Demo</button>
         </div>
 
         <div className="mini-stats">

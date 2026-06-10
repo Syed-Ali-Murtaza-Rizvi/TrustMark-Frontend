@@ -353,7 +353,7 @@ const Login = () => {
               </button>
 
               <div className="login-forgot-wrap">Don't Have Account?         
-                <Link to="/SignUp" className="login-forgot">
+                <Link to="/signup" className="login-forgot">
                   Sign Up
                 </Link>
               </div>

@@ -39,7 +39,7 @@ const Pricing = () => {
   ];
 
   return (
-    <section className="pricing">
+    <section id="pricing" className="pricing">
       <h2>Simple, Transparent Pricing</h2>
       <p className="subtitle">
         Choose the plan that works best for your organization

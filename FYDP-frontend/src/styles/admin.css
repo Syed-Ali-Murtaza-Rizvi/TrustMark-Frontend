@@ -4,8 +4,8 @@
 
 /* ---------- Root / globals ---------- */
 :root{
-  --maroon: #7b0000;
-  --maroon-dark: #650000;
+  --maroon: #2c4d82;
+  --maroon-dark: #122038;
   --bg: #efe6e6;
   --card-border: #ded0cf;
   --muted: #6f6f6f;
@@ -194,7 +194,7 @@ body{
 /* margin-left: 50%; } */
   
 }
-.primary-outline { background:#650000; color:#fff; border:1px solid #f0e0e0;
+.primary-outline { background:#122038; color:#fff; border:1px solid #f0e0e0;
     width: 55%; 
     
 

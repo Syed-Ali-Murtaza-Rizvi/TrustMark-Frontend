@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect } from 'react'
+import React, { Suspense, lazy } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 const App = lazy(() => import("../App"));
@@ -12,17 +12,6 @@ const AdminDashboard = lazy(() => import("../pages/AdminDashboard"));
 const ParticipantDashboard = lazy(() => import("../pages/Participant/ParticipantDashboard"));
 const Home = lazy(() => import("../pages/landing/Main"));
 
-const RootRedirect = () => {
-    useEffect(() => {
-        try {
-            // Keep persisted app data (e.g., attendance requests). Only clear auth.
-            localStorage.removeItem("currentUser");
-        } catch (e) {}
-    }, []);
-
-    return <Navigate to="/login" replace />;
-}
-
 const withSuspense = (element) => (
     <Suspense fallback={<div className="page-loading">Loading...</div>}>
         {element}
@@ -34,7 +23,7 @@ const router = createBrowserRouter([
         path: '/',
         element: withSuspense(<App/>),
         children: [
-            { index: true, element: <RootRedirect /> },
+            { index: true, element: withSuspense(<Home />) },
             { path: "login", element: withSuspense(<Login/>) },
             { path: "forgot-password", element: <Navigate to="/login" replace /> },
             { path: "student", element: withSuspense(<StudentDashboard/>) },
@@ -44,7 +33,7 @@ const router = createBrowserRouter([
             { path: "signup", element: withSuspense(<Signup/>) },
             { path: "orgadmin", element: withSuspense(<OrganizationalAdminDashboard/>) },
             { path: "participant", element: withSuspense(<ParticipantDashboard/>) },
-            { path: "*", element: <Navigate to="/login" replace /> },
+            { path: "*", element: <Navigate to="/" replace /> },
             { path: "home", element: withSuspense(<Home />) },
         ]
     },

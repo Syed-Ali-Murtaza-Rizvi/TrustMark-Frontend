@@ -19,6 +19,19 @@ const Navbar = () => {
   const pathname = location?.pathname || "";
   const isLoginPage = pathname === "/login";
   const isSignupPage = pathname === "/signup";
+  const isLandingPage = pathname === "/" || pathname === "/home";
+
+  const getDashboardPath = (role) => {
+    const rolePaths = {
+      student: "/student",
+      teacher: "/teacher",
+      orgadmin: "/orgadmin",
+      advisor: "/eventadmin",
+      participant: "/participant",
+      admin: "/admin",
+    };
+    return rolePaths[role] || "/";
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
@@ -28,41 +41,67 @@ const Navbar = () => {
   return (
     <nav className="w-full bg-white h-18 shadow-md flex items-center justify-between px-4">
       {/* Logo */}
-      <img
-        src={logo}
-        alt="TrustMark Logo"
-        className="w-40 h-27 object-contain cursor-pointer "
-      />
+      <Link to="/" aria-label="Go to landing page">
+        <img
+          src={logo}
+          alt="TrustMark Logo"
+          className="w-40 h-27 object-contain cursor-pointer "
+        />
+      </Link>
 
       {/* Auth actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         {!isLoggedIn ? (
           <>
-            {!isLoginPage && (
-              <Link
-                to="/login"
-                className="px-4 py-2 rounded border border-[#2c4d82] text-[#2c4d82] hover:bg-[#2f5fa7] hover:text-white hover:border-[#2f5fa7]"
-              >
-                Login
-              </Link>
-            )}
-            {!isSignupPage && (
+            {isLoginPage ? (
               <Link
                 to="/signup"
-                className="px-4 py-2 rounded bg-[#2c4d82] hover:bg-[#2f5fa7] text-white"
+                className="nav-auth-btn nav-auth-btn-primary"
               >
                 Sign Up
               </Link>
+            ) : isSignupPage ? (
+              <Link
+                to="/login"
+                className="nav-auth-btn nav-auth-btn-outline"
+              >
+                Login
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="nav-auth-btn nav-auth-btn-outline"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="nav-auth-btn nav-auth-btn-primary"
+                >
+                  Sign Up
+                </Link>
+              </>
             )}
           </>
         ) : (
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="px-4 py-2 rounded bg-blue-900 text-white"
-          >
-            Logout
-          </button>
+          <>
+            {isLandingPage && (
+              <Link
+                to={getDashboardPath(currentUser.role)}
+                className="nav-auth-btn nav-auth-btn-primary"
+              >
+                Dashboard
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="nav-auth-btn nav-auth-btn-logout"
+            >
+              Logout
+            </button>
+          </>
         )}
       </div>
     </nav>

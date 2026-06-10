@@ -1,7 +1,15 @@
 import { Link } from "react-router-dom";
 import logo from "../../assets/footer.png";
 
+const SUPPORT_EMAIL = "TrustMark@gmail.com";
+const GMAIL_COMPOSE_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(SUPPORT_EMAIL)}`;
+
 const Footer = () => {
+  const scrollToSection = (sectionId) => (event) => {
+    event.preventDefault();
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -23,10 +31,17 @@ const Footer = () => {
         <div className="footer-col">
           <h4>Product</h4>
           <ul>
-            <li><Link to="#">Features</Link></li>
-            <li><Link to="#">Pricing</Link></li>
-            <li><Link to="#">Security</Link></li>
-            <li><Link to="#">Integrations</Link></li>
+            <li>
+              <a href="#features" onClick={scrollToSection("features")}>
+                Features
+              </a>
+            </li>
+            <li>
+              <a href="#pricing" onClick={scrollToSection("pricing")}>
+                Pricing
+              </a>
+            </li>
+            
           </ul>
         </div>
 
@@ -35,9 +50,16 @@ const Footer = () => {
           <h4>Company</h4>
           <ul>
             <li><Link to="#">About Us</Link></li>
-            <li><Link to="#">Careers</Link></li>
-            <li><Link to="#">Blog</Link></li>
-            <li><Link to="#">Contact</Link></li>
+            
+            <li>
+              <a
+                href={GMAIL_COMPOSE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Contact
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -45,10 +67,16 @@ const Footer = () => {
         <div className="footer-col">
           <h4>Support</h4>
           <ul>
-            <li><Link to="#">Help Center</Link></li>
-            <li><Link to="#">Documentation</Link></li>
-            <li><Link to="#">API Reference</Link></li>
-            <li><Link to="#">Status</Link></li>
+            <li>
+              <a
+                href={GMAIL_COMPOSE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Help Center
+              </a>
+            </li>
+            
           </ul>
         </div>
 

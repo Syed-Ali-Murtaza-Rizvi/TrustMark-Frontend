@@ -16,13 +16,6 @@ const CTA = () => {
              <Link to="/login" className="btnn-primary">
   Start Free Trial <ArrowRight size={18} />
 </Link>
-          {/* <button className="btnn-primary">
-            Start Free Trial <ArrowRight size={18} />
-          </button> */}
-
-          <button className="btnn-outline">
-            Schedule a Demo
-          </button>
         </div>
 
         <span className="cta-note">
