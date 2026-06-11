@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { GraduationCap } from "lucide-react";
 import axios from "../../utils/axiosInstance";
 import "../../styles/admin.css";
+import BulkCourseUpdateModal from "../admin/BulkCourseUpdateModal";
 
 const ManageStudents = ({ years, programs, onRegister }) => {
   const createEmptyCourseEntry = () => ({
@@ -50,6 +51,7 @@ const ManageStudents = ({ years, programs, onRegister }) => {
   const [updateError, setUpdateError] = useState("");
 
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkForm, setBulkForm] = useState({
     year: "",
     batch: "",
@@ -258,30 +260,88 @@ const ManageStudents = ({ years, programs, onRegister }) => {
     }
   };
 
-  // Bulk update courses for a year & batch
-  const handleBulkSubmit = () => {
+  // Bulk update courses for a year & program via management API
+  const handleBulkSubmit = async () => {
     if (!bulkForm.year || !bulkForm.batch || !bulkForm.courses) {
       alert("Fill all fields for bulk update");
       return;
     }
 
-    const courses = bulkForm.courses.split(",").map(c => {
-      const [code, name] = c.split(":").map(s => s.trim());
-      return { code, name };
-    });
+    const storedUser = localStorage.getItem("currentUser");
+    if (!storedUser) {
+      alert("You must be logged in as management to perform bulk updates.");
+      return;
+    }
 
-    const updatedStudents = allStudents.map(s =>
-      s.year === bulkForm.year && s.program === bulkForm.batch
-        ? { ...s, courses }
-        : s
-    );
+    let managementId;
+    try {
+      const currentUser = JSON.parse(storedUser);
+      managementId = currentUser.id || currentUser.management_id;
+      if (!managementId) {
+        alert("Management ID not found in session.");
+        return;
+      }
+    } catch {
+      alert("Invalid session data. Please log in again.");
+      return;
+    }
 
-    localStorage.setItem("students", JSON.stringify(updatedStudents));
-    console.log("Bulk update applied:", updatedStudents.filter(
-      s => s.year === bulkForm.year && s.program === bulkForm.batch
-    ));
+    setBulkLoading(true);
 
-    setShowBulkModal(false);
+    try {
+      const rawTokens = bulkForm.courses.split(",").map((item) => item.trim()).filter(Boolean);
+      const numericIds = rawTokens
+        .map((token) => Number(token))
+        .filter((value) => Number.isInteger(value) && value > 0);
+
+      let courseIds = numericIds;
+      if (courseIds.length !== rawTokens.length) {
+        const { data: coursesData } = await axios.get("/api/courses/");
+        const coursesList = Array.isArray(coursesData) ? coursesData : (coursesData.results ?? []);
+        const byCode = new Map(
+          coursesList.map((course) => [
+            String(course.course_code || course.code || "").trim().toUpperCase(),
+            course.course_id || course.id,
+          ])
+        );
+
+        courseIds = rawTokens.map((token) => {
+          const asNumber = Number(token);
+          if (Number.isInteger(asNumber) && asNumber > 0) return asNumber;
+          const code = token.split(":")[0].trim().toUpperCase();
+          return byCode.get(code);
+        }).filter(Boolean);
+      }
+
+      if (!courseIds.length) {
+        alert("Enter valid course IDs or course codes.");
+        return;
+      }
+
+      const { data } = await axios.post(
+        `/api/managements/${managementId}/programs/${encodeURIComponent(bulkForm.batch)}/years/${Number(bulkForm.year)}/bulk-update-student-courses/`,
+        { course_ids: courseIds }
+      );
+
+      if (!data?.success) {
+        alert(data?.message || "Bulk update failed.");
+        return;
+      }
+
+      alert(
+        `${data.message} Updated ${data.students_updated} student(s) with ${data.courses_assigned} course(s).`
+      );
+      setShowBulkModal(false);
+      setBulkForm({ year: "", batch: "", courses: "" });
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        (err.response?.data ? Object.values(err.response.data).flat().join(" ") : "") ||
+        "Bulk update failed.";
+      alert(message);
+    } finally {
+      setBulkLoading(false);
+    }
   };
 
   // Filter students via API
@@ -353,38 +413,20 @@ const ManageStudents = ({ years, programs, onRegister }) => {
 
       {/* BULK UPDATE MODAL */}
       {showBulkModal && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <div className="modal-header">
-              <h3>Bulk Update Courses</h3>
-              <span className="close-btn" onClick={() => setShowBulkModal(false)}>✖</span>
-            </div>
-            <div className="modal-content">
-              <input
-                name="year"
-                placeholder="Year"
-                value={bulkForm.year}
-                onChange={handleBulkChange}
-              />
-              <input
-                name="batch"
-                placeholder="Batch / Program"
-                value={bulkForm.batch}
-                onChange={handleBulkChange}
-              />
-              <input
-                name="courses"
-                placeholder="Courses (CODE: Name, ...)"
-                value={bulkForm.courses}
-                onChange={handleBulkChange}
-              />
-            </div>
-            <div className="modal-actions">
-              <button className="cancel-btn" onClick={() => setShowBulkModal(false)}>Cancel</button>
-              <button className="submit-btn" onClick={handleBulkSubmit}>Submit</button>
-            </div>
-          </div>
-        </div>
+        <BulkCourseUpdateModal
+          managementId={(() => {
+            try {
+              const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+              return currentUser.id || currentUser.management_id || null;
+            } catch {
+              return null;
+            }
+          })()}
+          onClose={() => setShowBulkModal(false)}
+          onSuccess={() => {
+            setBulkForm({ year: "", batch: "", courses: "" });
+          }}
+        />
       )}
 
       {/* UPDATE INDIVIDUAL MODAL */}
