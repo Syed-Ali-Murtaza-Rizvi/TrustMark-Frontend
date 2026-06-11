@@ -1,14 +1,18 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "";
+const isNgrok = API_URL.includes("ngrok-free.app");
+
 const axiosInstance = axios.create({
   baseURL: API_URL,
-  headers: { "ngrok-skip-browser-warning": "true" },
+  headers: isNgrok ? { "ngrok-skip-browser-warning": "true" } : {},
 });
 
 // Attach access token to every request automatically
 axiosInstance.interceptors.request.use((config) => {
-  config.headers["ngrok-skip-browser-warning"] = "true";
+  if (isNgrok) {
+    config.headers["ngrok-skip-browser-warning"] = "true";
+  }
   try {
     const token = JSON.parse(localStorage.getItem("currentUser"))?.token;
     if (token) config.headers.Authorization = `Bearer ${token}`;
