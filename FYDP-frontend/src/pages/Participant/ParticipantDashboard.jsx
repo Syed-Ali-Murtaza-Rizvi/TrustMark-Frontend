@@ -588,36 +588,7 @@ const ParticipantDashboard = () => {
   );
 };
 
-const parseDateString = (str) => {
-  if (!str) return null;
-  const parts = str.split(/[-/]/);
-  if (parts.length === 3) {
-    if (parts[0].length === 4) {
-      const year = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1;
-      const day = parseInt(parts[2], 10);
-      return new Date(year, month, day);
-    }
-    if (parts[2].length === 4) {
-      const month = parseInt(parts[0], 10) - 1;
-      const day = parseInt(parts[1], 10);
-      const year = parseInt(parts[2], 10);
-      return new Date(year, month, day);
-    }
-  }
-  const d = new Date(str);
-  d.setHours(0, 0, 0, 0);
-  return d;
-};
-
 const EventCard = ({ event, onView, onScanQR }) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const eventDate = parseDateString(event.date);
-  const isFuture = eventDate && eventDate > today;
-  const isPast = eventDate && eventDate < today;
-
   return (
     <div className="participant-event-card">
       <div className="participant-card-top">
@@ -654,19 +625,9 @@ const EventCard = ({ event, onView, onScanQR }) => {
         </button>
 
         {event.attended === null && onScanQR && (
-          isFuture ? (
-            <button className="pqr-scan-btn" disabled title={`QR Scan opens on ${event.date}`}>
-              <QrCode size={13} /> Opens {event.date}
-            </button>
-          ) : isPast ? (
-            <button className="pqr-scan-btn" disabled title="This event has ended">
-              <QrCode size={13} /> Event Ended
-            </button>
-          ) : (
-            <button className="pqr-scan-btn" onClick={onScanQR}>
-              <QrCode size={13} /> Scan QR
-            </button>
-          )
+          <button className="pqr-scan-btn" onClick={onScanQR}>
+            <QrCode size={13} /> Scan QR
+          </button>
         )}
         {event.attended === true && (
           <span className="participant-status-attended">Attended</span>
