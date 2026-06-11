@@ -7,6 +7,7 @@ import EventModal from "../components/events/EventModal";
 import "../styles/eventadmin.css";
 import { Calendar } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance";
+import { getEventRegistrationLink } from "../utils/eventLinks";
 
 const resolveEventPk = (id) => {
   if (id === null || id === undefined) return null;
@@ -141,7 +142,7 @@ export default function EventAdminDashboard() {
     }
     
     // Fallback for non-secure contexts (HTTP + IP address)
-    const link = ev.registrationLink;
+    const link = getEventRegistrationLink(ev);
     if (navigator.clipboard && window.location.protocol === 'https:') {
       navigator.clipboard.writeText(link).then(() => {
         alert("Link copied to clipboard");
