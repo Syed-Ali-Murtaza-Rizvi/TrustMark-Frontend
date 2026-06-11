@@ -588,7 +588,54 @@ const ParticipantDashboard = () => {
   );
 };
 
+const getPakistanDate = () => {
+  const d = new Date();
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  const pakTime = new Date(utc + (3600000 * 5));
+  pakTime.setHours(0, 0, 0, 0);
+  return pakTime;
+};
+
+const parseDateString = (str) => {
+  if (!str) return null;
+  const s = str.trim();
+  
+  // Format: YYYY-MM-DD
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(s)) {
+    const parts = s.split('-');
+    return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  }
+  
+  // Format: MM/DD/YYYY or M/D/YYYY
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) {
+    const parts = s.split('/');
+    return new Date(parseInt(parts[2], 10), parseInt(parts[0], 10) - 1, parseInt(parts[1], 10));
+  }
+
+  // Format: DD-MM-YYYY or D-M-YYYY
+  if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(s)) {
+    const parts = s.split('-');
+    return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+  }
+
+  // Fallback
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return null;
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
 const EventCard = ({ event, onView, onScanQR }) => {
+  const today = getPakistanDate();
+  const eventDate = parseDateString(event.date);
+  
+  if (eventDate) {
+    eventDate.setHours(0, 0, 0, 0);
+  }
+
+  const isFuture = eventDate && eventDate.getTime() > today.getTime();
+  const isPast = eventDate && eventDate.getTime() < today.getTime();
+
   return (
     <div className="participant-event-card">
       <div className="participant-card-top">
@@ -625,9 +672,19 @@ const EventCard = ({ event, onView, onScanQR }) => {
         </button>
 
         {event.attended === null && onScanQR && (
-          <button className="pqr-scan-btn" onClick={onScanQR}>
-            <QrCode size={13} /> Scan QR
-          </button>
+          isFuture ? (
+            <button className="pqr-scan-btn" disabled title={`QR Scan opens on ${event.date}`}>
+              <QrCode size={13} /> Opens {event.date}
+            </button>
+          ) : isPast ? (
+            <button className="pqr-scan-btn" disabled title="This event has ended">
+              <QrCode size={13} /> Event Ended
+            </button>
+          ) : (
+            <button className="pqr-scan-btn" onClick={onScanQR}>
+              <QrCode size={13} /> Scan QR
+            </button>
+          )
         )}
         {event.attended === true && (
           <span className="participant-status-attended">Attended</span>
