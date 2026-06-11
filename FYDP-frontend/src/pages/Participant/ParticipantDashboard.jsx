@@ -588,54 +588,95 @@ const ParticipantDashboard = () => {
   );
 };
 
-const EventCard = ({ event, onView, onScanQR }) => (
-  <div className="participant-event-card">
-    <div className="participant-card-top">
-      <h3 className="participant-card-title">{event.title}</h3>
+const parseDateString = (str) => {
+  if (!str) return null;
+  const parts = str.split(/[-/]/);
+  if (parts.length === 3) {
+    if (parts[0].length === 4) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      return new Date(year, month, day);
+    }
+    if (parts[2].length === 4) {
+      const month = parseInt(parts[0], 10) - 1;
+      const day = parseInt(parts[1], 10);
+      const year = parseInt(parts[2], 10);
+      return new Date(year, month, day);
+    }
+  }
+  const d = new Date(str);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
 
-      <span className="participant-card-status-icon">
+const EventCard = ({ event, onView, onScanQR }) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const eventDate = parseDateString(event.date);
+  const isFuture = eventDate && eventDate > today;
+  const isPast = eventDate && eventDate < today;
+
+  return (
+    <div className="participant-event-card">
+      <div className="participant-card-top">
+        <h3 className="participant-card-title">{event.title}</h3>
+
+        <span className="participant-card-status-icon">
+          {event.attended === true && (
+            <CheckCircle2 size={20} color="#22a06b" strokeWidth={2} />
+          )}
+          {event.attended === false && (
+            <Eye size={20} color="#ae2a19" strokeWidth={2} />
+          )}
+        </span>
+      </div>
+
+      <div className="participant-card-meta">
+        <MapPin size={13} />
+        {event.venue}
+      </div>
+
+      <div className="participant-card-meta">
+        <CalendarDays size={13} />
+        {event.date}
+      </div>
+
+      <p className="participant-card-desc">{event.description}</p>
+
+      <div className="participant-card-footer">
+        <button
+          className="participant-view-btn"
+          onClick={() => onView(event)}
+        >
+          <Eye size={13} /> View
+        </button>
+
+        {event.attended === null && onScanQR && (
+          isFuture ? (
+            <button className="pqr-scan-btn" disabled title={`QR Scan opens on ${event.date}`}>
+              <QrCode size={13} /> Opens {event.date}
+            </button>
+          ) : isPast ? (
+            <button className="pqr-scan-btn" disabled title="This event has ended">
+              <QrCode size={13} /> Event Ended
+            </button>
+          ) : (
+            <button className="pqr-scan-btn" onClick={onScanQR}>
+              <QrCode size={13} /> Scan QR
+            </button>
+          )
+        )}
         {event.attended === true && (
-          <CheckCircle2 size={20} color="#22a06b" strokeWidth={2} />
+          <span className="participant-status-attended">Attended</span>
         )}
         {event.attended === false && (
-          <Eye size={20} color="#ae2a19" strokeWidth={2} />
+          <span className="participant-status-not-attended">Not Attended</span>
         )}
-      </span>
+      </div>
     </div>
-
-    <div className="participant-card-meta">
-      <MapPin size={13} />
-      {event.venue}
-    </div>
-
-    <div className="participant-card-meta">
-      <CalendarDays size={13} />
-      {event.date}
-    </div>
-
-    <p className="participant-card-desc">{event.description}</p>
-
-    <div className="participant-card-footer">
-      <button
-        className="participant-view-btn"
-        onClick={() => onView(event)}
-      >
-        <Eye size={13} /> View
-      </button>
-
-      {event.attended === null && onScanQR && (
-        <button className="pqr-scan-btn" onClick={onScanQR}>
-          <QrCode size={13} /> Scan QR
-        </button>
-      )}
-      {event.attended === true && (
-        <span className="participant-status-attended">Attended</span>
-      )}
-      {event.attended === false && (
-        <span className="participant-status-not-attended">Not Attended</span>
-      )}
-    </div>
-  </div>
-);
+  );
+};
 
 export default ParticipantDashboard;
