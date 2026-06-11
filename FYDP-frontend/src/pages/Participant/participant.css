@@ -248,6 +248,18 @@ body {
   border-color: #2c5f9e;
 }
 
+.pqr-scan-btn:disabled {
+  background-color: #f5f7fa;
+  color: #a0aec0;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+}
+
+.pqr-scan-btn:disabled:hover {
+  background-color: #f5f7fa;
+  border-color: #e2e8f0;
+}
+
 /* ============ OVERLAY (shared) ============ */
 .pqr-overlay {
   position: fixed;

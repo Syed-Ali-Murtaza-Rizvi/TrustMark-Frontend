@@ -588,54 +588,70 @@ const ParticipantDashboard = () => {
   );
 };
 
-const EventCard = ({ event, onView, onScanQR }) => (
-  <div className="participant-event-card">
-    <div className="participant-card-top">
-      <h3 className="participant-card-title">{event.title}</h3>
+const EventCard = ({ event, onView, onScanQR }) => {
+  const todayStr = new Date().toLocaleDateString('en-CA');
+  const isFuture = event.date && event.date > todayStr;
+  const isPast = event.date && event.date < todayStr;
 
-      <span className="participant-card-status-icon">
+  return (
+    <div className="participant-event-card">
+      <div className="participant-card-top">
+        <h3 className="participant-card-title">{event.title}</h3>
+
+        <span className="participant-card-status-icon">
+          {event.attended === true && (
+            <CheckCircle2 size={20} color="#22a06b" strokeWidth={2} />
+          )}
+          {event.attended === false && (
+            <Eye size={20} color="#ae2a19" strokeWidth={2} />
+          )}
+        </span>
+      </div>
+
+      <div className="participant-card-meta">
+        <MapPin size={13} />
+        {event.venue}
+      </div>
+
+      <div className="participant-card-meta">
+        <CalendarDays size={13} />
+        {event.date}
+      </div>
+
+      <p className="participant-card-desc">{event.description}</p>
+
+      <div className="participant-card-footer">
+        <button
+          className="participant-view-btn"
+          onClick={() => onView(event)}
+        >
+          <Eye size={13} /> View
+        </button>
+
+        {event.attended === null && onScanQR && (
+          isFuture ? (
+            <button className="pqr-scan-btn" disabled title={`QR Scan opens on ${event.date}`}>
+              <QrCode size={13} /> Opens {event.date}
+            </button>
+          ) : isPast ? (
+            <button className="pqr-scan-btn" disabled title="This event has ended">
+              <QrCode size={13} /> Event Ended
+            </button>
+          ) : (
+            <button className="pqr-scan-btn" onClick={onScanQR}>
+              <QrCode size={13} /> Scan QR
+            </button>
+          )
+        )}
         {event.attended === true && (
-          <CheckCircle2 size={20} color="#22a06b" strokeWidth={2} />
+          <span className="participant-status-attended">Attended</span>
         )}
         {event.attended === false && (
-          <Eye size={20} color="#ae2a19" strokeWidth={2} />
+          <span className="participant-status-not-attended">Not Attended</span>
         )}
-      </span>
+      </div>
     </div>
-
-    <div className="participant-card-meta">
-      <MapPin size={13} />
-      {event.venue}
-    </div>
-
-    <div className="participant-card-meta">
-      <CalendarDays size={13} />
-      {event.date}
-    </div>
-
-    <p className="participant-card-desc">{event.description}</p>
-
-    <div className="participant-card-footer">
-      <button
-        className="participant-view-btn"
-        onClick={() => onView(event)}
-      >
-        <Eye size={13} /> View
-      </button>
-
-      {event.attended === null && onScanQR && (
-        <button className="pqr-scan-btn" onClick={onScanQR}>
-          <QrCode size={13} /> Scan QR
-        </button>
-      )}
-      {event.attended === true && (
-        <span className="participant-status-attended">Attended</span>
-      )}
-      {event.attended === false && (
-        <span className="participant-status-not-attended">Not Attended</span>
-      )}
-    </div>
-  </div>
-);
+  );
+};
 
 export default ParticipantDashboard;
