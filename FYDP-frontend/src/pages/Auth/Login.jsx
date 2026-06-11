@@ -68,10 +68,61 @@ const Login = () => {
     alert("Attendance QR detected. Please complete live face verification on the participant dashboard.");
   };
 
+  useEffect(() => {
+    const stored = localStorage.getItem("currentUser");
+    if (stored) {
+      try {
+        const currentUser = JSON.parse(stored);
+        if (currentUser.token) {
+          const params = new URLSearchParams(location.search);
+          const eventToken = (params.get("eventToken") || "").trim();
+          const attendanceToken = (params.get("attendanceToken") || "").trim();
+          if (eventToken) {
+            localStorage.setItem("pendingEventToken", eventToken);
+          }
+          if (attendanceToken) {
+            localStorage.setItem("pendingAttendanceToken", attendanceToken);
+          }
+
+          if (currentUser.role === "participant") {
+            registerPendingInvite(currentUser.token);
+            notifyPendingAttendance();
+            navigate("/participant");
+          } else if (currentUser.role === "student") {
+            navigate("/student");
+          } else if (currentUser.role === "teacher") {
+            navigate("/teacher");
+          } else if (currentUser.role === "orgadmin") {
+            navigate("/orgadmin");
+          } else if (currentUser.role === "advisor") {
+            navigate("/eventadmin");
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [navigate, location.search]);
+
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     setData((prev) => ({ ...prev, [name]: value }));
     setError("");
+  };
+
+  const formatLoginError = (err) => {
+    const payload = err.response?.data;
+    if (!payload) {
+      return "Network error. Please check your connection and try again.";
+    }
+    if (typeof payload === "string") {
+      if (payload.includes("ngrok") || payload.includes("<!DOCTYPE")) {
+        return "Server returned an ngrok warning page instead of JSON. Refresh the page and try again.";
+      }
+      return payload.slice(0, 200);
+    }
+    const messages = Object.values(payload).flat().join(" ");
+    return messages || "Invalid credentials. Please try again.";
   };
 
   const handleSubmit = async (e) => {
@@ -80,7 +131,7 @@ const Login = () => {
 
     /* =========================
        STUDENT LOGIN (API)
-    ========================= */
+     ========================= */
     if (data.role === "student") {
       try {
         setLoading(true);
@@ -106,13 +157,7 @@ const Login = () => {
         navigate("/student");
         return;
       } catch (err) {
-        const result = err.response?.data;
-        if (result) {
-          const messages = Object.values(result).flat().join(" ");
-          setError(messages || "Invalid credentials. Please try again.");
-        } else {
-          setError("Network error. Please check your connection and try again.");
-        }
+        setError(formatLoginError(err));
       } finally {
         setLoading(false);
       }
@@ -148,13 +193,7 @@ const Login = () => {
 
         navigate("/teacher");
       } catch (err) {
-        const result = err.response?.data;
-        if (result) {
-          const messages = Object.values(result).flat().join(" ");
-          setError(messages || "Invalid credentials. Please try again.");
-        } else {
-          setError("Network error. Please check your connection and try again.");
-        }
+        setError(formatLoginError(err));
       } finally {
         setLoading(false);
       }
@@ -193,13 +232,7 @@ const Login = () => {
 
         navigate("/orgadmin");
       } catch (err) {
-        const result = err.response?.data;
-        if (result) {
-          const messages = Object.values(result).flat().join(" ");
-          setError(messages || "Invalid credentials. Please try again.");
-        } else {
-          setError("Network error. Please check your connection and try again.");
-        }
+        setError(formatLoginError(err));
       } finally {
         setLoading(false);
       }
@@ -233,13 +266,7 @@ const Login = () => {
 
         navigate("/eventadmin");
       } catch (err) {
-        const result = err.response?.data;
-        if (result) {
-          const messages = Object.values(result).flat().join(" ");
-          setError(messages || "Invalid credentials. Please try again.");
-        } else {
-          setError("Network error. Please check your connection and try again.");
-        }
+        setError(formatLoginError(err));
       } finally {
         setLoading(false);
       }
@@ -275,13 +302,7 @@ const Login = () => {
         notifyPendingAttendance();
         navigate("/participant");
       } catch (err) {
-        const result = err.response?.data;
-        if (result) {
-          const messages = Object.values(result).flat().join(" ");
-          setError(messages || "Invalid credentials. Please try again.");
-        } else {
-          setError("Network error. Please check your connection and try again.");
-        }
+        setError(formatLoginError(err));
       } finally {
         setLoading(false);
       }

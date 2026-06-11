@@ -433,3 +433,63 @@ body {
 .pqr-submit-btn:hover {
   background-color: #245090;
 }
+
+/* ============ REFRESH & SPIN ANIMATIONS ============ */
+.participant-header-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, #2c5f9e, #3b7dd8);
+  border-radius: 12px;
+  padding: 18px 28px;
+  box-shadow: 0 2px 8px rgba(44, 95, 158, 0.25);
+}
+
+.participant-header-wrap .participant-header {
+  background: none;
+  padding: 0;
+  box-shadow: none;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.participant-refresh-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.participant-refresh-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.participant-refresh-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.participant-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.participant-refresh-btn.spinning svg {
+  animation: participant-spin 1s linear infinite;
+}
+
+@keyframes participant-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

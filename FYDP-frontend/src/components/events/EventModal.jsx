@@ -1,12 +1,11 @@
 // src/components/events/EventModal.jsx
 import React, { useState } from "react";
 import { User } from "lucide-react";
-import { getEventRegistrationLink } from "../../utils/eventLinks";
 
 export default function EventModal({ event, onClose }) {
   const [tab, setTab] = useState("details"); // details | participants | attendance
   const isUpcoming = Boolean(event.isUpcoming);
-  const registrationLink = getEventRegistrationLink(event);
+  const registrationLink = event.registrationLink;
 
   const copyRegistrationLink = () => {
     if (!registrationLink) return;
