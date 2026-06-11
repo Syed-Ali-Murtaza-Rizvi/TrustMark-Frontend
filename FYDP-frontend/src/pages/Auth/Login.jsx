@@ -50,7 +50,7 @@ const Login = () => {
       localStorage.removeItem("pendingEventToken");
       
       // Store the event token and flag to trigger face registration after redirect
-      if (response.data?.registrationId) {
+      if (response.data?.requiresFaceRegistration || response.data?.registrationId) {
         localStorage.setItem("pendingFaceRegistration", pendingToken);
       }
     } catch (err) {
