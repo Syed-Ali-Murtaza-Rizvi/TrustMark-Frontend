@@ -588,10 +588,35 @@ const ParticipantDashboard = () => {
   );
 };
 
+const parseDateString = (str) => {
+  if (!str) return null;
+  const parts = str.split(/[-/]/);
+  if (parts.length === 3) {
+    if (parts[0].length === 4) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      return new Date(year, month, day);
+    }
+    if (parts[2].length === 4) {
+      const month = parseInt(parts[0], 10) - 1;
+      const day = parseInt(parts[1], 10);
+      const year = parseInt(parts[2], 10);
+      return new Date(year, month, day);
+    }
+  }
+  const d = new Date(str);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
 const EventCard = ({ event, onView, onScanQR }) => {
-  const todayStr = new Date().toLocaleDateString('en-CA');
-  const isFuture = event.date && event.date > todayStr;
-  const isPast = event.date && event.date < todayStr;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const eventDate = parseDateString(event.date);
+  const isFuture = eventDate && eventDate > today;
+  const isPast = eventDate && eventDate < today;
 
   return (
     <div className="participant-event-card">
