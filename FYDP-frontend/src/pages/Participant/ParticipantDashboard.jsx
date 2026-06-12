@@ -404,8 +404,26 @@ const ParticipantDashboard = () => {
     if (!verifyContext?.token) return;
     setVerifying(true);
     try {
+      const getCurrentPositionAsync = () =>
+        new Promise((resolve) => {
+          if (!navigator.geolocation) return resolve(null);
+          navigator.geolocation.getCurrentPosition(
+            (p) => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+            () => resolve(null),
+            { enableHighAccuracy: true, timeout: 5000 }
+          );
+        });
+
+      const pos = await getCurrentPositionAsync();
+
       const formData = new FormData();
       formData.append("face_image", imageBlob, "live-face.jpg");
+      if (pos) {
+        formData.append("lat", String(pos.lat));
+        formData.append("lng", String(pos.lng));
+        formData.append("latitude", String(pos.lat));
+        formData.append("longitude", String(pos.lng));
+      }
 
       const { data } = await axiosInstance.post(
         `/api/events/attendance-by-link/${encodeURIComponent(verifyContext.token)}/`,
@@ -433,9 +451,27 @@ const ParticipantDashboard = () => {
     if (!registerFaceContext?.token) return;
     setRegisteringFace(true);
     try {
+      const getCurrentPositionAsync = () =>
+        new Promise((resolve) => {
+          if (!navigator.geolocation) return resolve(null);
+          navigator.geolocation.getCurrentPosition(
+            (p) => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+            () => resolve(null),
+            { enableHighAccuracy: true, timeout: 5000 }
+          );
+        });
+
+      const pos = await getCurrentPositionAsync();
+
       const formData = new FormData();
       formData.append("face_image", imageBlob, "live-face.jpg");
       formData.append("event_token", registerFaceContext.token);
+      if (pos) {
+        formData.append("lat", String(pos.lat));
+        formData.append("lng", String(pos.lng));
+        formData.append("latitude", String(pos.lat));
+        formData.append("longitude", String(pos.lng));
+      }
 
       const { data } = await axiosInstance.post(
         "/api/events/register-face/",
